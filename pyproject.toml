@@ -8,6 +8,7 @@ authors = ["Damir Kuzovatov <kuz.damir.01@gmail.com>"]
 python = "^3.10"
 SQLAlchemy = "^1.4.40"
 psycopg2-binary = "^2.9.3"
+cryptography = "^38.0.1"
 
 [tool.poetry.dev-dependencies]
 
