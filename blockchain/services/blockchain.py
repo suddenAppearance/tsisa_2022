@@ -24,8 +24,8 @@ class BlockService:
         if not (block := await self.repository.get_last()):
             previous_hash = 'Initial block'
         else:
-            previous_hash = self.get_block_hash(block)
-        block = Block(data=block_data.data, data_sign=block_data.data_signature, previous_hash=previous_hash)
+            previous_hash = await self.get_block_hash(block.index)
+        block = Block(data=block_data.data, data_sign=block_data.data_sign, previous_hash=previous_hash)
         return BlockRetrieveSchema.from_orm(await self.repository.save(block))
 
     async def get_block_hash(self, block_index: int) -> str:
@@ -48,3 +48,14 @@ class BlockService:
 
     async def get_all(self) -> list[BlockRetrieveSchema]:
         return [BlockRetrieveSchema.from_orm(block) for block in await self.repository.get_all()]
+
+    async def verify_blockchain(self) -> bool:
+        blockchain = await self.repository.get_all()
+        if not blockchain:
+            return True
+        prev_hash = await self.get_block_hash(blockchain[0].index)
+        for block in blockchain[1:]:
+            if prev_hash != block.previous_hash:
+                return False
+            prev_hash = await self.get_block_hash(block.index)
+        return True
